@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-0KREVG8DH5"></script>
+
+		<!-- CSS JS -->
+		<link rel="stylesheet" href="./css/bootstrap/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/custom.css">
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+			integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous">
+		</script>
+		<script src="js/ethers/ethers-5.4.umd.min.js" type="application/javascript"></script>
+		<script src="js/web3/web3.min.js" type="application/javascript"></script>
+		<title>Contract Tool</title>
+	</head>
+
+	<body>
+		<div class="container m-4">
+			<div class="p-4"></div>
+			<div id = 'gas-config'></div>
+			<br/>
+			<button id="go">LET'S GO!</button>
+			<br/>
+			<div id = 'address-result'></div>
+			<br/>
+			<textarea id="address-area" rows="10" cols="80"></textarea>
+			<div id = 'test2-result'></div>
+			<div class="p-4"></div>
+			<button id="update-gas">Update Gas</button>
+			<div id = 'gas-info'></div>
+			<div class="p-4"></div>
+			<button id="test-action">test</button>
+			<div id = 'test-info'></div>
+			<div class="row clearfix">
+
+				<!-- 导航栏 -->
+				<div class="col-md-3 column">
+					<div class="p-4"></div>
+					<button id="sidebar-connect-network" class="custom-sub mb-1 p-1 pl-3 pr-3" disabled="true"></button>
+					<button id="sidebar-connect-button" class="custom-sub p-1 pl-3 pr-3">Connect Wallet</button>
+				</div>
+
+				<!-- EARN页面 -->
+				<div class="col-md-9 column pl-5 pt-3 pb-2">
+					<div class="page-header" id="earn-title">
+						<h1>Contract Tool</h1>
+					</div>
+					<div class="p-3"></div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Vault Finance Template -->
+		<!-- Wallet Modal -->
+		<div class="modal fade" id="walletModal" tabindex="-1" role="dialog" aria-labelledby="walletModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="walletModal">Connect Wallet</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						Vault Finance supports crypto wallets like <b>MetaMask</b> and <b>Trust Wallet</b>.<br />
+						If you haven't got one yet, we also provide quick start guide for new comers!
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Skip</button>
+						<button type="button" class="btn btn-primary"
+							onclick="window.open('https://docs.vaultfinance.net/get-started/create-a-wallet')">Learn How
+							to Connect</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="toast-group" class="position-fixed top-0 right-0 p-3" style="z-index: 5; right: 0; top: 0;">
+			<div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true"
+				data-delay="5000">
+				<div class="toast-header">
+					<img src="./assets/logo.svg" height="20px" class="rounded mr-2" alt="...">
+					<strong class="mr-auto">Vault Finance</strong>
+					<small></small>
+					<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="toast-body">
+					Hello, world! This is a toast message.
+				</div>
+			</div>
+		</div>
+
+
+		<template id="lock-record-table">
+			<h4>My Deposit</h4>
+			<div class="p-1"></div>
+			<div class="lock-record shadow rounded p-3">
+				<!-- Lock Record 1st line info -->
+				<table>
+					<tr>
+						<td class="ml-2 coin-info align-self-end"></td>
+						<td class="pl-5 align-self-end text-right lock-record-header">Deposit</td>
+						<td class="pl-5 align-self-end text-right lock-record-header">Unlock Amount</td>
+						<td class="pl-5 align-self-end text-right lock-record-header">Time Remaining</td>
+					</tr>
+				</table>
+			</div>
+			<div class="mb-5"></div>
+		</template>
+		<template id="lock-record-table-row">
+			<tr class="lock-record-content">
+				<td class="ml-2 coin-info align-self-end ock-record-text-gray name">Loading...</span></td>
+				<td class="pl-5 align-self-end text-right lock-record-text-gray lock-amount"></td>
+				<td class="pl-5 align-self-end text-right lock-record-text unlock-amount"></td>
+				<td class="pl-5 align-self-end text-right lock-record-text-gray unlock-time text-center">
+					<button class="lock-record" hidden="true">Unlock</button>
+				</td>
+			</tr>
+		</template>
+		<template id="invest-item">
+			<div class="invest-item shadow rounded p-4 pt-3 pb-3">
+				<!-- Invest item 1st line info -->
+				<div class="d-flex invest-item-toggle" data-toggle="collapse">
+					<div class="ml-2 coin-info align-self-end">
+						<img class="coin-icon" />
+						<span class="ml-2 d-inline-block align-middle coin-name"></span>
+					</div>
+					<div class="pl-5 align-self-end text-right apy-group">
+						<div class="invest-item-header">APY</div>
+						<div class="apy-green apy-text">10.69%</div>
+					</div>
+					<div class="pl-5 align-self-end text-right lock-group">
+						<div class="invest-item-header">Lock</div>
+						<div class="lock-days-text"></div>
+					</div>
+					<div class="pl-5 align-self-end text-right">
+						<div class="invest-item-header">Total Locked</div>
+						<div class="total-locked-text"></div>
+					</div>
+					<div class="pl-5 align-self-center">
+						<img src="./assets/invest-item-arrow.svg" class="drop-down">
+					</div>
+				</div>
+				<div class="p-2"></div>
+				<!-- card-content -->
+				<div class="text-center collapse pt-1 card-content">
+					<button class="custom-main card-connect-button">Connect Wallet</button>
+					<div class="text-center collapse pt-1 card-content-connected">
+						<div class="invest-item-text text-left mb-2 card-content-balance"></div>
+						<div class="input-group mb-3">
+							<input type="text" class="form-control card-content-input" placeholder="0">
+							<div class="input-group-append">
+								<button class="btn btn-outline-secondary card-content-input-button-max"
+									type="button">Max</button>
+							</div>
+						</div>
+						<div class="invest-item-text text-left mb-3 card-content-comment">Please enter
+							a number to see your yield.</div>
+						<button class="custom-main card-connect-button-connected">Deposit & Lock</button>
+					</div>
+				</div>
+			</div>
+			<div class="mb-4"></div>
+		</template>
+		<!-- Vault Finance Script -->
+		<script src="./metamask.js"></script>
+	</body>
+</html>
